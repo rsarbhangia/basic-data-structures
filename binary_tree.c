@@ -35,6 +35,65 @@ Node *insertNode(Node *s, int x){
 
 }
 
+//It deletes node with value "x", and returns the value x
+//Returns -1 if not found
+int deleteNode(Node* s, int x){
+    Node *p = NULL;
+    while(s && (s->data != x)){//Finding pos of x
+        p = s;
+        if(x < s->data){
+            s = s->leftPtr;
+        }
+        else{
+            s = s->rightPtr;
+        }
+    }
+    if(!s){//If x is not found
+        return -1;
+    }
+
+    if(s->leftPtr && s->rightPtr){//Both children there
+        Node *iter = s->leftPtr;
+        p = s;
+        while(iter->rightPtr){
+            p = iter;
+            iter = iter->rightPtr;
+        }
+        s->data = iter->data;
+        s = iter;
+    }
+
+    if(!s->leftPtr && !s->rightPtr){   //If the node is a leaf
+        if(s->data <= p->data){
+            p->leftPtr = NULL;
+        }
+        else{
+            p->rightPtr = NULL;
+        }
+    }
+    else if(!s->leftPtr && s->rightPtr){//Right child present
+        if(s->data <= p->data){
+            p->leftPtr = s->rightPtr;
+        }
+        else{
+            p->rightPtr = s->rightPtr;
+        }
+    }
+    else if(s->leftPtr && !s->rightPtr){//Left Child present
+        if(s->data <= p->data){
+            p->leftPtr = s->leftPtr;
+        }
+        else{
+            p->rightPtr = s->leftPtr;
+        }
+    }
+
+    free(s);
+    s = NULL;
+    return x;
+}
+
+
 //This will print element of a tree and will not return anything
 //In-order 
 //Specs: O(N) = 2T(N/2) + c
@@ -109,5 +168,17 @@ int main(){
     printTree(root);
     printf("\nThe tree(pre-order): ");
     printTreePre(root);
+    printf("\n\n");
+
+   int x;
+   fscanf(fp, " %d", &x);
+   deleteNode(root, x);
+
+   printf("After deletion the tree(in-order): ");
+    //int numLev = ceil(log(n+1));
+    printTree(root);
+    printf("\nThe tree(pre-order): ");
+    printTreePre(root);
+    printf("\n\n");
 
 }
