@@ -4,6 +4,8 @@
 //Version 1.01
 //Change Log: Printing Tree in a tree structure xxx
 //Added functionality to print tree in pre-order for uniqueness
+//Version 1.02
+//Patched the bug regarding Segmentation error
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +39,8 @@ Node *insertNode(Node *s, int x){
 
 //It deletes node with value "x", and returns the value x
 //Returns -1 if not found
-int deleteNode(Node* s, int x){
+Node* deleteNode(Node* s, int x){
+    Node *root = s;
     Node *p = NULL;
     while(s && (s->data != x)){//Finding pos of x
         p = s;
@@ -49,7 +52,7 @@ int deleteNode(Node* s, int x){
         }
     }
     if(!s){//If x is not found
-        return -1;
+        return NULL;
     }
 
     if(s->leftPtr && s->rightPtr){//Both children there
@@ -64,6 +67,11 @@ int deleteNode(Node* s, int x){
     }
 
     if(!s->leftPtr && !s->rightPtr){   //If the node is a leaf
+        if(!p){
+            free(s);
+            s = NULL;
+            return s;
+        }
         if(s->data <= p->data){
             p->leftPtr = NULL;
         }
@@ -72,6 +80,13 @@ int deleteNode(Node* s, int x){
         }
     }
     else if(!s->leftPtr && s->rightPtr){//Right child present
+        if(!p){
+            p = s;
+            s = s->rightPtr;
+            free(p);
+            p = NULL;
+            return s;
+        }
         if(s->data <= p->data){
             p->leftPtr = s->rightPtr;
         }
@@ -80,6 +95,13 @@ int deleteNode(Node* s, int x){
         }
     }
     else if(s->leftPtr && !s->rightPtr){//Left Child present
+        if(!p){
+            p = s;
+            s = s->leftPtr;
+            free(p);
+            p = NULL;
+            return s;
+        }
         if(s->data <= p->data){
             p->leftPtr = s->leftPtr;
         }
@@ -90,7 +112,7 @@ int deleteNode(Node* s, int x){
 
     free(s);
     s = NULL;
-    return x;
+    return root;
 }
 
 
@@ -162,7 +184,6 @@ int main(){
     }
 
 
-
     printf("Now printing the tree(in-order): ");
     //int numLev = ceil(log(n+1));
     printTree(root);
@@ -172,7 +193,7 @@ int main(){
 
    int x;
    fscanf(fp, " %d", &x);
-   deleteNode(root, x);
+   root = deleteNode(root, x);
 
    printf("After deletion the tree(in-order): ");
     //int numLev = ceil(log(n+1));
